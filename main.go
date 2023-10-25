@@ -1,12 +1,14 @@
 package main
 
 import (
-	"fmt"
+	"bytes"
+	"encoding/json"
 	"ft-healthcare-core/alg"
 	"ft-healthcare-core/api"
 	"ft-healthcare-core/ble"
 	"ft-healthcare-core/model"
 	"log"
+	"net/http"
 	"time"
 
 	"github.com/google/uuid"
@@ -71,7 +73,35 @@ func do(r, w bluetooth.DeviceCharacteristic) error {
 		t.Start()
 
 		if trial.ViaCloud {
-			fmt.Println("via cloud!!")
+			log.Println("[OPTIMIZING] - offload EMG to Cloud")
+
+			payload := &bytes.Buffer{}
+			enc := json.NewEncoder(payload)
+			err := enc.Encode(map[string]interface{}{
+				"emg": trial.EMG,
+			})
+			if err != nil {
+				return err
+			}
+
+			resp, err := http.Post(
+				"http://34.16.118.119:9910/api/emg",
+				"application/json",
+				payload,
+			)
+			if err != nil {
+				return err
+			}
+
+			dec := json.NewDecoder(resp.Body)
+			body := map[string]interface{}{}
+			err = dec.Decode(&body)
+			if err != nil {
+				return err
+			}
+
+			t.SetComputingTime(uint64(body["computing_delay"].(float64)))
+
 		} else {
 			t.SetComputingTime(alg.Detect(trial.EMG))
 		}
