@@ -1,7 +1,7 @@
 package model
 
 import (
-	"fmt"
+	"log"
 
 	"github.com/google/uuid"
 )
@@ -9,7 +9,7 @@ import (
 var MetaInfo = map[string]interface{}{}
 
 func init() {
-	fmt.Println("init")
+	log.Println("init")
 	MetaInfo["connection_status"] = false
 	MetaInfo["last_commit_id"] = uuid.New()
 }

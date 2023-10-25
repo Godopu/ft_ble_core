@@ -1,11 +1,7 @@
 package api
 
 import (
-	"encoding/json"
-	"errors"
-	"fmt"
 	"ft-healthcare-core/model"
-	"io"
 	"net/http"
 	"strings"
 
@@ -30,10 +26,21 @@ func createRouter() *gin.Engine {
 	apiGroup := apiEngine.Group("/api")
 	{
 		apiGroup.GET("/meta", GET_MetaInformation)
+
 		apiGroup.GET("/intensity", GET_Intensities)
 		apiGroup.POST("/intensity", POST_Intensity)
 		apiGroup.DELETE("/intensity", DELETE_Intensity)
 		apiGroup.OPTIONS("/intensity", OPTIONS_Intensity)
+
+		apiGroup.GET("/trials", GET_Trials)
+		apiGroup.POST("/trial", POST_Trial)
+		apiGroup.POST("/try", POST_Try)
+		apiGroup.PUT("/trial", PUT_Trial)
+		apiGroup.DELETE("/trial", DELETE_Trial)
+		apiGroup.OPTIONS("/trial", OPTIONS_Trial)
+
+		apiGroup.POST("/start", POST_START)
+		apiGroup.POST("/end", POST_END)
 	}
 
 	// create a new gin router for static files
@@ -41,7 +48,8 @@ func createRouter() *gin.Engine {
 	staticEngine.Static("/", "./web")
 
 	// Create a new gin router
-	r := gin.Default()
+	r := gin.New()
+	// gin.
 	// r can accept all messages from apiEngine and staticEngine
 	r.Any("/*any", func(c *gin.Context) {
 		defer handleError(c)
@@ -65,68 +73,4 @@ func createRouter() *gin.Engine {
 
 func GET_MetaInformation(c *gin.Context) {
 	c.JSON(http.StatusOK, model.MetaInfo)
-}
-
-func GET_Intensities(c *gin.Context) {
-	c.JSON(http.StatusOK, model.Intensities)
-}
-
-func POST_Intensity(c *gin.Context) {
-	var payload model.Intensity
-	err := c.BindJSON(&payload)
-	if err != nil {
-		panic(err)
-	}
-
-	fmt.Println(payload)
-	model.Intensities = append(model.Intensities, payload)
-	c.String(http.StatusOK, "Okay")
-}
-
-func PUT_Intensity(c *gin.Context) {
-	fmt.Println("PUT")
-	payload := map[string]interface{}{}
-	err := c.BindJSON(&payload)
-	if err != nil {
-		panic(err)
-	}
-
-	idx, ok := payload["index"].(int)
-	if !ok {
-		panic(errors.New("invalid index error"))
-	}
-	fmt.Println(idx)
-
-	// obj, ok := payload["intensity"].(map[string]interface{})
-	// fmt.Println(obj)
-
-	c.String(http.StatusOK, "OKay")
-}
-
-func DELETE_Intensity(c *gin.Context) {
-	fmt.Println("DELETE")
-	payload := map[string]interface{}{}
-
-	body, err := io.ReadAll(c.Request.Body)
-	if err != nil {
-		panic(err)
-	}
-	err = json.Unmarshal(body, &payload)
-	if err != nil {
-		panic(err)
-	}
-	fmt.Println(payload)
-
-	idx, ok := payload["index"].(float64)
-	if !ok {
-		panic(errors.New("invalid index error"))
-	}
-
-	model.RemoveItemFromIntensities(int(idx))
-	c.String(http.StatusOK, "OKay")
-}
-
-func OPTIONS_Intensity(c *gin.Context) {
-	fmt.Println(c.Request.Method)
-	c.String(http.StatusOK, "OKay")
 }

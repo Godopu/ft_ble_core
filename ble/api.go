@@ -1,7 +1,6 @@
 package ble
 
 import (
-	"fmt"
 	"log"
 
 	"tinygo.org/x/bluetooth"
@@ -41,22 +40,22 @@ func Scan() ([]bluetooth.DeviceCharacteristic, error) {
 				panic(err)
 			}
 
-			fmt.Println("svcs:", srvcs)
+			log.Println("svcs:", srvcs)
 
 			characteristic, err = srvcs[1].DiscoverCharacteristics(nil)
 			if err != nil {
 				panic(err)
 			}
-			fmt.Println("Connected!!")
+			log.Println("Connected!!")
 			adapter.StopScan()
 		}
 	})
 
 	// character[0].EnableNotifications(func(buf []byte) {
-	// 	fmt.Println("read:", len(buf), buf)
+	// 	log.Println("read:", len(buf), buf)
 	// })
 
-	// fmt.Println("Receiving the message")
+	// log.Println("Receiving the message")
 
 	// do(character[1])
 	// for {
@@ -67,7 +66,7 @@ func Scan() ([]bluetooth.DeviceCharacteristic, error) {
 	// 	if err != nil {
 	// 		panic(err)
 	// 	}
-	// 	fmt.Println("sent length:", n)
+	// 	log.Println("sent length:", n)
 	// }
 	return characteristic, err
 }
