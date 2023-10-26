@@ -64,17 +64,22 @@ func do(r, w bluetooth.DeviceCharacteristic) error {
 	w.WriteWithoutResponse(ble.SET_FREQUENCY_DUTYRATE)
 	time.Sleep(time.Second)
 
+	ticker := time.NewTicker(time.Second * 3)
 	for {
+		ticker.Reset(time.Second * 3)
+
 		measurementID, _ := uuid.NewUUID()
+
 		trial := model.RetrieveTrialRequest()
-		t := &model.TimeLog{}
+
+		t := &model.TimeLog{ExpType: "LOCAL"}
 
 		log.Println("[start ", measurementID, ") log> EMG 신호 측정", trial.EMG)
 		t.Start()
 
 		if trial.ViaCloud {
 			log.Println("[OPTIMIZING] - offload EMG to Cloud")
-
+			t.ExpType = "CLOUD"
 			payload := &bytes.Buffer{}
 			enc := json.NewEncoder(payload)
 			err := enc.Encode(map[string]interface{}{
@@ -85,7 +90,7 @@ func do(r, w bluetooth.DeviceCharacteristic) error {
 			}
 
 			resp, err := http.Post(
-				"http://34.16.118.119:9910/api/emg",
+				"http://34.122.255.36:9910/api/emg",
 				"application/json",
 				payload,
 			)

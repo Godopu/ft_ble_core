@@ -6,6 +6,7 @@ import (
 )
 
 type TimeLog struct {
+	ExpType         string
 	start           time.Time
 	endComputing    time.Time
 	end             time.Time
@@ -36,8 +37,8 @@ func (tl *TimeLog) End() {
 
 func (tl *TimeLog) String() string {
 	// return "Hello"
-	return fmt.Sprintf("(Networking, Compugting, Total) = (%d ms, %d ms, %d ms)",
-		tl.NetworkingDelay, tl.ComputingDelay, tl.TotalDelay)
+	return fmt.Sprintf("%s] - (Networking, Compugting, Total) = (%d ms, %d ms, %d ms)",
+		tl.ExpType, tl.NetworkingDelay, tl.ComputingDelay, tl.TotalDelay)
 }
 
 var LogStack []*TimeLog
